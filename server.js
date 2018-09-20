@@ -2,31 +2,31 @@
 // =============================================================================
 
 // call the packages we need
-var express    = require('express');        // call express
-var app        = express();                 // define our app using express
-var bodyParser = require('body-parser');
+const express    = require('express');        // call express
+const app        = express();                 // define our app using express
+const bodyParser = require('body-parser');
+const pizzapi = require('dominos');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-var port = process.env.PORT || 8080;        // set our port
+const port = process.env.PORT || 8080;        // set our port
 
 // ROUTES FOR OUR API
 // =============================================================================
-var router = express.Router();              // get an instance of the express Router
+const router = express.Router();              // get an instance of the express Router
 
 // test route to make sure everything is working (accessed at GET http://localhost:8080/api)
-router.get('/', function(req, res) {
-    res.json({ message: 'hooray! welcome to our api!' });
-});
+router.get('/stores/:zip', function(req, res) {
+  const zip = req.params.zip
+  pizzapi.Util.findNearbyStores(zip, 'Delivery', dom => {
+    res.json({stores: dom.result.Stores})
+  })
+})
 
-// more routes for our API will happen here
-
-// REGISTER OUR ROUTES -------------------------------
-// all of our routes will be prefixed with /api
-app.use('/api', router);
+app.use('/', router)
 
 // START THE SERVER
 // =============================================================================

@@ -3,6 +3,7 @@
   "main": "server.js",
   "dependencies": {
     "body-parser": "~1.0.1",
+    "dominos": "2.1.1",
     "express": "~4.16.0"
   }
 }
