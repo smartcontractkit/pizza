@@ -1,24 +1,13 @@
-// BASE SETUP
-// =============================================================================
+const express    = require('express')
+const app        = express()
+const bodyParser = require('body-parser')
+const dominos = require('dominos')
+const port = process.env.PORT || 8080
+const router = express.Router()
 
-// call the packages we need
-const express    = require('express');        // call express
-const app        = express();                 // define our app using express
-const bodyParser = require('body-parser');
-const dominos = require('dominos');
-
-// configure app to use bodyParser()
-// this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const port = process.env.PORT || 8080;        // set our port
-
-// ROUTES FOR OUR API
-// =============================================================================
-const router = express.Router();              // get an instance of the express Router
-
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
 router.get('/order/:zip', function(req, res) {
   const params = req.params
   const zip = params.zip
@@ -26,7 +15,13 @@ router.get('/order/:zip', function(req, res) {
     const stores = dom.result.Stores
     if (stores.length > 0) {
       const order = buildOrder(stores[0].StoreID, params)
-      res.json({hello: "world", order: order})
+      order.validate((result) => {
+        if (result.success == true) {
+          res.json({order: order})
+        } else {
+          res.json({errors: ["Could not validate order"]})
+        }
+      })
     } else {
       res.json({errors: ["No stores available to order from"]})
     }
@@ -102,8 +97,5 @@ const buildOrder = (storeID, params) => {
 //   Z  - BananaPeppers
 
 app.use('/', router)
-
-// START THE SERVER
-// =============================================================================
 app.listen(port);
-console.log('Magic happens on port ' + port);
+console.log('Pizza on port ' + port);
